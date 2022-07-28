@@ -1,0 +1,48 @@
+
+
+
+
+# Install prerequisite packages #
+install.packages("stats")
+install.packages("dplyr")
+install.packages("randomForest")
+
+# Load pre required Libraries #
+library(stats)
+library(dplyr)
+library(randomForest)
+
+# package to allow for direct reading of excel (xlsx files)#
+install.packages("tidyverse")
+library(readxl)
+
+#Variable Selection #
+str(PrototypeRstudio)
+
+#splitting data in training and testing#
+
+# a vector that has random sample of training values #
+index = sample(2,nrow(PrototypeRstudio),replace = TRUE,prob=c(0.7,0.3))
+
+#Training data #
+Training = PrototypeRstudio[index==1,]
+
+#Testing Data #
+Testing = PrototypeRstudio[index==2,]
+
+#random forest Model #
+RFM = randomForest(Average~.,data = Testing)
+
+#Evaluating Model Accuracy #
+Average_Pred = predict(RFM,Testing)
+Testing$Average_Pred = Average_Pred
+
+#visualize outcome#
+View(Testing)
+
+#Building Confusion Matrix#
+CFM = table(Testing$Average,Testing$Average_Pred)
+Classification_Accuracy = sum(diag(CFM)/sum(CFM))
+
+#Variable Importance Plot#
+varImpPlot(RFM, sort=TRUE, n.var=min(30, nrow(RFM$importance)),type=NULL,class=NULL, scale=TRUE, main=deparse(substitute(RFM)),)
